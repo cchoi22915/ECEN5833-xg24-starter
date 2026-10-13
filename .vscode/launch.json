@@ -1,0 +1,59 @@
+{
+  "version": "0.2.0",
+  // For another module, update the board label and MCU device in every configuration.
+  // The executable must match its build task; .out carries the debugger's ELF symbols.
+  "configurations": [
+    // Default LCD/PWM demo. F5 builds, programs the kit and stops at main; press Continue.
+    {
+      "name": "Starter: debug demo (BRD4186C)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+      "device": "EFR32MG24B210F1536IM48",
+      "interface": "swd",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/demo/base/series2_starter.out",
+      "runToEntryPoint": "main",
+      "preLaunchTask": "Starter: build demo"
+    },
+    // Deep-sleep comparison: demo peripherals are disabled to allow EM2.
+    {
+      "name": "Starter: debug em2 (BRD4186C)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+      "device": "EFR32MG24B210F1536IM48",
+      "interface": "swd",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/em2/base/series2_starter.out",
+      "runToEntryPoint": "main",
+      "preLaunchTask": "Starter: build em2"
+    },
+    // Light-sleep comparison: the application explicitly requests EM1.
+    {
+      "name": "Starter: debug em1 (BRD4186C)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+      "device": "EFR32MG24B210F1536IM48",
+      "interface": "swd",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/em1/base/series2_starter.out",
+      "runToEntryPoint": "main",
+      "preLaunchTask": "Starter: build em1"
+    },
+    // Awake comparison: sleep is disabled while the same periodic workload runs.
+    {
+      "name": "Starter: debug awake (BRD4186C)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+      "device": "EFR32MG24B210F1536IM48",
+      "interface": "swd",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/awake/base/series2_starter.out",
+      "runToEntryPoint": "main",
+      "preLaunchTask": "Starter: build awake"
+    }
+  ]
+}

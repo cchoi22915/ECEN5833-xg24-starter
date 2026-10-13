@@ -1,0 +1,11 @@
+{
+  // VS Code offers to install these when the starter folder/workspace is opened.
+  "recommendations": [
+    // C/C++ navigation uses the compilation database produced by firmware.py.
+    "ms-vscode.cpptools",
+    // CMake project browsing; use Starter tasks to generate/build the firmware.
+    "ms-vscode.cmake-tools",
+    // F5 connects to the kit through the separately installed J-Link debug server.
+    "marus25.cortex-debug"
+  ]
+}

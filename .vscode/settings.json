@@ -1,0 +1,17 @@
+{
+  // Setup/doctor writes the resolved uv path into .local/starter.code-workspace.
+  "starter.uvPath": "uv",
+  // The firmware helper runs SLC before CMake; opening the folder should not configure it.
+  "cmake.configureOnOpen": false,
+  "cmake.sourceDirectory": "${workspaceFolder}/generated/cmake_gcc",
+  // The last successful build supplies mode-specific flags for authored firmware files.
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/.local/compile_commands.json",
+  // The editable SLC project recipe uses YAML syntax.
+  "files.associations": {
+    "*.slcp": "yaml"
+  },
+  "files.exclude": {
+    // Hide machine paths and logs from Explorer; they remain available on disk.
+    "**/.local": true
+  }
+}

@@ -1,0 +1,84 @@
+name: Host tests
+# Automatic checks need no kit; workflow_dispatch also enables full firmware builds.
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  host:
+    # macOS runners cover both Intel and Apple Silicon; all tests run on native hosts.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04, macos-15-intel, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Action commit hashes and the uv version keep CI tool selection reproducible.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.12.23'
+      - name: Sync Python environment
+        run: uv sync --locked
+      - name: Python tests
+        run: uv run --locked python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Configure application tests
+        # Debug plus the test target's flags keep C assertions enabled.
+        run: cmake -S tests -B build/host -DCMAKE_BUILD_TYPE=Debug
+      - name: Build application tests
+        run: cmake --build build/host --config Debug --parallel
+      - name: Event and failure tests
+        # SDK mocks exercise event handling and startup failures without USB hardware.
+        run: ctest --test-dir build/host -C Debug --output-on-failure
+
+  firmware:
+    # Full SDK downloads are opt-in; run this matrix before a course release.
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04, macos-15-intel, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.12.23'
+      - name: Sync Python environment
+        run: uv sync --locked
+      - name: Install SLT 1.2.1
+        # Select the vendor archive for this OS/CPU, then extract only the CLI executable.
+        shell: python
+        run: |
+          from pathlib import Path
+          import platform
+          import sys
+          import urllib.request
+          import zipfile
+          host = {"win32": "windows-x64", "linux": "linux-x64",
+                  "darwin": "mac-arm64" if platform.machine() == "arm64" else "mac-x64"}[sys.platform]
+          directory = Path.home() / ".local/bin"
+          directory.mkdir(parents=True, exist_ok=True)
+          archive = Path(".local/slt-download.zip")
+          archive.parent.mkdir(exist_ok=True)
+          url = f"https://www.silabs.com/documents/public/software/slt-cli-1.2.1-{host}.zip"
+          urllib.request.urlretrieve(url, archive)
+          with zipfile.ZipFile(archive) as source:
+              name = "slt.exe" if sys.platform == "win32" else "slt"
+              members = [entry for entry in source.namelist() if Path(entry).name == name]
+              if len(members) != 1:
+                  raise RuntimeError("Expected one SLT executable in the vendor archive")
+              executable = directory / name
+              executable.write_bytes(source.read(members[0]))
+              executable.chmod(0o755)
+      - name: Install locked tools
+        # Resolve SDK/compiler paths through the same helper used by students.
+        run: uv run --locked python tools/firmware.py setup
+      - name: Build demo
+        # Default demo also exercises the LCD/PWM driver integration.
+        run: uv run --locked python tools/firmware.py build --mode demo
+      - name: Build awake
+        run: uv run --locked python tools/firmware.py build --mode awake
+      - name: Build EM1
+        run: uv run --locked python tools/firmware.py build --mode em1
+      - name: Build EM2
+        run: uv run --locked python tools/firmware.py build --mode em2

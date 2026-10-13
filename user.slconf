@@ -1,0 +1,10 @@
+# Setup writes machine-specific SDK/tool locations here; do not commit those paths.
+include = [".local/slt/autogen/pkg.slconf"]
+
+[core]
+# Select the installed Arm GCC toolchain for SLC generation.
+toolchain = ["gcc"]
+
+[slc]
+# Generate the CMake project consumed by tools/firmware.py.
+output-type = ["cmake"]

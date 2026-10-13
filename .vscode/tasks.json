@@ -1,0 +1,252 @@
+{
+  "version": "2.0.0",
+  // Process tasks pass arguments directly; repository paths may contain spaces.
+  // Each Windows override uses uv's default install path, avoiding a stale editor PATH.
+  // --locked keeps the Python environment consistent with uv.lock.
+  "tasks": [
+    // Run each prerequisite in order; a failed step stops the first setup.
+    {
+      "label": "Starter: first setup",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Starter: sync", "Starter: setup", "Starter: doctor", "Starter: build demo"],
+      "problemMatcher": []
+    },
+    // Create/update .venv using the pinned Python and dependencies.
+    {
+      "label": "Starter: sync",
+      "hide": true,
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "sync",
+        "--locked"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    // Install the Silicon Labs packages from pkg.lock and create the local workspace.
+    {
+      "label": "Starter: setup",
+      "hide": true,
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/firmware.py",
+        "setup"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    // Check J-Link/GDB as well as build tools, then refresh local workspace paths.
+    {
+      "label": "Starter: doctor",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/firmware.py",
+        "doctor",
+        "--debug"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    // Recreate generated SDK sources/CMake files from firmware/series2_starter.slcp.
+    {
+      "label": "Starter: generate",
+      "hide": true,
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/firmware.py",
+        "generate"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    // Default build task: LCD artwork plus a breathing LED driven by hardware PWM.
+    {
+      "label": "Starter: build demo",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": ["run", "--locked", "python", "tools/firmware.py", "build", "--mode", "demo"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$gcc"]
+    },
+    // Sleep comparisons use separate output folders and disable the demo drivers.
+    {
+      "label": "Starter: build em2",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/firmware.py",
+        "build",
+        "--mode",
+        "em2"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    // Build the EM1 reference with the same periodic workload.
+    {
+      "label": "Starter: build em1",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/firmware.py",
+        "build",
+        "--mode",
+        "em1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    // Build the awake reference for comparison against EM1 and EM2 captures.
+    {
+      "label": "Starter: build awake",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/firmware.py",
+        "build",
+        "--mode",
+        "awake"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    // Save a new raw CSV from the running kit; inputs are literal process arguments.
+    {
+      "label": "Starter: capture energy",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": ["run", "--locked", "python", "tools/energy_profile.py", "capture",
+               "${input:energyCaptureFile}", "--seconds", "${input:energyCaptureSeconds}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    // Plot an existing CSV offline; its PNG is written beside the selected file.
+    {
+      "label": "Starter: plot capture",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": ["run", "--locked", "python", "tools/energy_profile.py", "plot", "${input:energyPlotFile}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    // Illustrative state-duration calculation; this task does not measure the kit.
+    {
+      "label": "Starter: energy model",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "tools/energy_budget.py",
+        "examples/illustrative_energy_model.json"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    // Run Python helper tests on this computer. C application tests use CMake/CTest.
+    {
+      "label": "Starter: tests",
+      "type": "process",
+      "command": "${config:starter.uvPath}",
+      "windows": { "command": "${env:USERPROFILE}\\.local\\bin\\uv.exe" },
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ],
+  // Relative filenames start from the repository root, even when they contain spaces.
+  "inputs": [
+    {
+      "id": "energyCaptureFile",
+      "type": "promptString",
+      "description": "New CSV filename (existing captures are refused)",
+      "default": "captures/demo.csv"
+    },
+    {
+      "id": "energyCaptureSeconds",
+      "type": "promptString",
+      "description": "Capture duration in seconds",
+      "default": "10"
+    },
+    {
+      "id": "energyPlotFile",
+      "type": "promptString",
+      "description": "Existing CSV filename to plot",
+      "default": "captures/demo.csv"
+    }
+  ]
+}

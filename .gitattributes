@@ -1,0 +1,11 @@
+# Normalize text line endings so Windows, macOS and Linux produce reviewable diffs.
+* text=auto eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.slcp text eol=lf
+*.cmake text eol=lf
+# PowerShell scripts retain Windows line endings when checked out.
+*.ps1 text eol=crlf

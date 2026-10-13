@@ -1,0 +1,13 @@
+# Python helper environment; the firmware itself is compiled by the SLT Arm toolchain.
+[project]
+name = "ecen5833-xg24-starter"
+version = "0.1.0"
+description = "Python helpers for the ECEN 5833 xG24 firmware starter"
+# .python-version selects the tested interpreter; uv.lock pins Python dependencies.
+requires-python = ">=3.14.8,<3.15"
+# Matplotlib is used only when plotting saved energy captures.
+dependencies = ["matplotlib==3.11.2"]
+
+[tool.uv]
+# Run scripts from tools/ directly; there is no Python package to build or install.
+package = false

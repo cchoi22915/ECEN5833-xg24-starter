@@ -1,0 +1,34 @@
+# Local SDK, generated files and machine paths
+/generated/
+/build/
+# Keep raw measurements locally; deliberately share selected evidence with your project.
+/captures/
+# SLC outputs are recreated from the authored firmware recipe and sources.
+/firmware/autogen/
+/firmware/config/
+/firmware/series2_starter_cmake/
+/firmware/cmake_gcc/
+/firmware/.settings/
+/firmware/.project
+/firmware/.cproject
+/firmware/vscode.conf
+# Machine paths, Python environments and caches differ between computers.
+/.local/
+/.venv/
+/.uv-cache/
+# Full instructor guides are retained locally, outside the student repository.
+/docs/
+/README_FULL.md
+/CMakeUserPresets.json
+# Share source code rather than generated executables, intermediate files or logs.
+*.out
+*.elf
+*.hex
+*.bin
+*.map
+*.o
+*.d
+*.log
+# Python and OS caches do not belong in the project history.
+__pycache__/
+.DS_Store

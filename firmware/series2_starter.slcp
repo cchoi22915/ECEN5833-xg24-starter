@@ -1,0 +1,54 @@
+# Editable SLC recipe. Add application files/components here before regenerating.
+project_name: series2_starter
+label: ECEN 5833 Series 2 Firmware Starter
+description: A kit display/breathing PWM demo and periodic workload for comparing awake, EM1 and EM2-permitted firmware.
+category: Example|Teaching
+package: platform
+quality: experimental
+# SDK version must agree with pkg.slt/pkg.lock and tools/firmware.py.
+sdk:
+  vendor: silabs
+  id: simplicity_sdk
+  version: 2026.6.1
+# Register every new .c file here; paths are relative to this firmware folder.
+source:
+  - path: src/main.c
+  - path: src/app.c
+  - path: src/workload.c
+  - path: src/kit_demo.c
+# Register headers here so generation copies the authored include directory.
+include:
+  - path: include
+    file_list:
+      - path: app.h
+      - path: app_config.h
+      - path: workload.h
+      - path: kit_demo.h
+      - path: cu_logo.h
+# Radio board chooses MCU/pins/clocks; the mainboard supplies the LCD and debugger.
+component:
+  - id: brd4186c
+  - id: brd4002a
+  # Core services for startup, event processing and managed idle sleep.
+  - id: sl_system
+  - id: device_init
+  - id: clock_manager
+  - id: power_manager
+  - id: sleeptimer
+  # Kit demo drivers; kit_demo.c enables/deinitializes outputs for the selected mode.
+  - id: board_control
+  - id: dmd_memlcd
+  - id: glib
+  # Named instance generates sl_pwm_led0 and its board-specific pin configuration.
+  - id: pwm
+    instance:
+      - led0
+# PWM frequency is Hz. Brightness changes are scheduled separately in app.c.
+configuration:
+  - name: SL_PWM_LED0_FREQUENCY
+    value: 100
+  # Disable power-manager tracing and EM2 debug retention for power comparisons.
+  - name: SL_POWER_MANAGER_DEBUG
+    value: 0
+  - name: SL_POWER_MANAGER_INIT_EMU_EM2_DEBUG_ENABLE
+    value: 0

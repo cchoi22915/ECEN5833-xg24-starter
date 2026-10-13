@@ -1,0 +1,8 @@
+{
+  "description": "Illustrative teaching model. These values are not measured on the starter board.",
+  "voltage_v": 3.3,
+  "states": [
+    {"name": "active", "duration_s": 0.010, "current_a": 0.005},
+    {"name": "idle", "duration_s": 0.990, "current_a": 0.000005}
+  ]
+}

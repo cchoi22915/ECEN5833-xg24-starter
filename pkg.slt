@@ -1,0 +1,13 @@
+# Editable SLT package recipe. pkg.lock records the resolved package set.
+# When upgrading, regenerate the lock and keep firmware.py/SLCP version checks aligned.
+version = "0"
+
+[dependency]
+# Use Silicon Labs-supported versions so SLC, SDK and compiler work together.
+simplicity-sdk = "2026.6.1"
+gcc-arm-none-eabi = "14.2.rel1"
+slc-cli = "6.0.25"
+cmake = "3.30.2"
+ninja = "1.12.1"
+# Commander supplies flashing and the Pro Kit's AEM capture command.
+commander = "1.25.0"
